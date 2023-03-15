@@ -1,0 +1,55 @@
+
+								Lambda assignments
+1)
+# lambda function that adds 15 to a given number
+addition = lambda x: x + 15
+
+# lambda function that multiplies argument x with argument y
+multiplication = lambda x, y: x * y
+
+# calling the lambda functions
+print("Addition of 15 to given number:", addition(5))
+print("Multiplication of given numbers:", multiplication(2, 5))
+
+2)
+sorted_marks = sorted(list(map(lambda x: [x[0], float(x[1])],
+                         [['S ROY', 1], ['B BOSE', 3], ['N KAR', 2], ['C DUTTA', 1], ['G GHOSH', 1]])),
+                    key = lambda x: x[1])
+
+second_lowest = sorted_marks[1][1]
+
+names = []
+
+for name, grade in sorted_marks:
+    if grade == second_lowest:
+        names.append(name)
+
+print("Second lowest grade: {0}".format(second_lowest))
+print("Names:")
+print(*names, sep=", ")
+
+3)
+
+# list of strings 
+strings = ['Python', 'PHP', 'Java', 'C#', 'C++']
+
+# size of strings to be extracted
+size = 3
+
+# using lambda to extract strings of specified size 
+result = list(filter(lambda x: len(x) == size, strings))
+
+print(result)
+
+list1 = ['Python', 'list', 'exercises', 'practice', 'solution']
+length = 8
+
+result = list(filter(lambda x: len(x) == length, list1))
+
+print(result)
+
+4)
+avg_tuple = lambda tup: tuple(map(lambda x: round(sum(x) / len(x), 2), tup)) 
+print("Average value of the numbers of the said tuple of tuples:", avg_tuple(((10, 10, 10), (30, 45, 56), (81, 80, 39), (1, 2, 3))))
+print("Average value of the numbers of the said tuple of tuples:", avg_tuple(((1, 1, -5), (30, -15, 56), (81, -60, -39), (-10, 2, 3))))
+
