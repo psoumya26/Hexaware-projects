@@ -1,0 +1,15 @@
+/* src/components/Home/Home.css */
+
+.banner-container {
+    background-color: #322e2e99;
+    background-image: url('D:\FinalProject\demo\frontend\public\Busimage\bus2.jpeg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    min-height: 60vh;
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    background-blend-mode: overlay;
+    align-items: center;
+}
