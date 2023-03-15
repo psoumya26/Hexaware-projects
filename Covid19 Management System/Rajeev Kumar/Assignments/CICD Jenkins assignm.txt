@@ -1,0 +1,87 @@
+     #####################  CI CD JENKIN ASSIGNMENTS #####################
+
+1.	What is Continuous Integration?
+SOL: Continuous integration (CI) is the practice of automating the integration of code changes from multiple contributors into a single software project. It’s a primary DevOps best practice, allowing developers to frequently merge code changes into a central repository where builds and tests then run. Automated tools are used to assert the new code’s correctness before integration.
+
+A source code version control system is the crux of the CI process. The version control system is also supplemented with other checks like automated code quality tests, syntax style review tools, and more.  
+
+2. 	What is Continuous Deployment?
+SOL : Continuous deployment is a strategy in software development where code changes to an application are released automatically into the production environment. This automation is driven by a series of predefined tests. Once new updates pass those tests, the system pushes the updates directly to the software's users.
+Continuous deployment offers several benefits for enterprises looking to scale their applications and IT portfolio. First, it speeds time to market by eliminating the lag between coding and customer value—typically days, weeks, or even months.
+
+In order to achieve this, regression tests must be automated, thereby eliminating expensive manual regression testing. The systems that organizations put in place to manage large bundles of production change—including release planning and approval meetings—can also be eliminated for most changes.
+
+3. Can you describe an example of a CI (and/or CD) process starting the moment a developer submitted a change/PR to a repository?
+SOL: There are many answers for such a question, as CI processes vary, depending on the technologies used and the type of the project to where the change was submitted. Such processes can include one or more of the following stages:
+
+Compile
+Build
+Install
+Configure
+Update
+Test
+An example of one possible answer:
+
+A developer submitted a pull request to a project. The PR (pull request) triggered two jobs (or one combined job). One job for running lint test on the change and the second job for building a package which includes the submitted change, and running multiple api/scenario tests using that package. Once all tests passed and the change was approved by a maintainer/core, it’s merged/pushed to the repository. If some of the tests failed, the change will not be allowed to merged/pushed to the repository.
+
+A complete different answer or CI process, can describe how a developer pushes code to a repository, a workflow then triggered to build a container image and push it to the registry. Once in the registry, the k8s cluster is applied with the new changes.
+
+4. What is Continuous Delivery?
+SOL: Continuous delivery (CD or CDel) prepares deployments for production, allowing development teams to deploy changes easily with the push of a button (typically, the merge to master command, which pushes the deployment to the master branch). 
+
+Continuous delivery produces artifacts deployable to production—the next step after continuous integration (CI). It allows the organization to wait before deploying each new release to evaluate the change.
+
+5.What is difference between Continuous Delivery and Continuous Deployment?
+SOL:  Continuous deployment is a strategy in software development where code changes to an application are released automatically into the production environment. This automation is driven by a series of predefined tests. Once new updates pass those tests, the system pushes the updates directly to the software's users.
+Continuous deployment offers several benefits for enterprises looking to scale their applications and IT portfolio. First, it speeds time to market by eliminating the lag between coding and customer value—typically days, weeks, or even months.
+
+Continuous delivery (CD or CDel) prepares deployments for production, allowing development teams to deploy changes easily with the push of a button (typically, the merge to master command, which pushes the deployment to the master branch). 
+Continuous delivery produces artifacts deployable to production—the next step after continuous integration (CI). It allows the organization to wait before deploying each new release to evaluate the change.
+
+6. 	What CI/CD best practices are you familiar with? Or what do you consider as CI/CD best practice?
+SOL: 
+A.Automated process of building, testing and deploying software
+B.Commit and test often
+C.Testing/Staging environment should be a clone of production environment
+
+7. You are given a pipeline and a pool with 3 workers: virtual machine, baremetal and a container. How will you decide on which one of them to run the pipeline?
+Where do you store CI/CD pipelines? Why?
+SOL:
+There are multiple approaches as to where to store the CI/CD pipeline definitions:
+
+A.App Repository – store them in the same repository of the application they are building or testing (perhaps the most popular one)
+B.Central Repository – store all organization’s/project’s CI/CD pipelines in one separate repository (perhaps the best approach when multiple teams test the same set of projects and they end up having many pipelines)
+C.CI repo for every app repo – you separate CI related code from app code but you don’t put everything in one place (perhaps the worst option due to the maintenance).
+
+8. Where do you store CI/CD pipelines? Why?
+SOL:A CI/CD tool can be self-hosted, hosted in a private cloud, or hosted within a public cloud environment. Determine your hosting needs before choosing a CI/CD tool.A cloud-hosted tool handles infrastructure, maintenance, support, and security, but it usually requires access to sensitive information. Since the cloud vendor is in charge of many aspects, you do not get full control over the environment.
+    In a CI/CD pipeline, monitoring and automation are introduced early in the software development process, most notably during testing and integration, but also throughout the delivery and deployment phases. Technically, each part of the CI/CD pipeline can be performed manually, but the real value of this approach is best achieved with automation.
+
+9. 	How do you perform plan capacity for your CI/CD resources? (e.g. servers, storage, etc.)?
+SOL:The CI/CD pipeline combines continuous integration, delivery and deployment into four major phases: source, build, test and deploy. Each phase uses highly detailed processes, standards, tools and automation. Just as physical products made in a factory may benefit from customized manufacturing machines, software pipelines are frequently tailored to suit the specific needs of the project and the business.
+
+10 . How would you structure/implement CD for an application which depends on several other applications?
+SOL:
+Continuous integration/continuous delivery/continuous deployment (CI/CD/CD) help developers and testers ship the software faster and safer in a structured environment.
+A.Continuous Integration: CI is a process in which developers integrate new codes into a shared repository several times a day. This is a better approach than the traditional one, where the developer will build new codes in isolation and then integrate into the main repository at the end of the project lifecycle. 
+B.Continuous Delivery: At the end of the CI, CD comes in. CD ensures to automate the software delivery process and commits to deliver the integrated code into the production stage without any bugs or delay. CD in the DevOps implementation process, helps developers merge the new code with the main branch consistently so they can build an instant software-ready product.
+C.Continuous Deployment: The most critical part of the automation occurs at this stage of the delivery pipeline. Whenever there is an important change in the code, the corresponding build and deployment occur simultaneously.
+
+11. How do you measure your CI/CD quality? Are there any metrics or KPIs you are using for measuring the quality?
+SOL: DevOps organizations monitor their CI/CD pipeline across three groups of metrics:
+
+Automation performance
+Speed
+Quality
+With continuous delivery of high-quality software releases, organizations are able to respond to changing market needs faster than their competition and maintain improved end-user experiences.
+
+12. 	What is Jenkins? What have you used it for?
+SOL: Jenkins is an open-source free automation tool used to build and test software projects. The tool makes it painless for developers to integrate changes to the project. Jenkins' primary focus is to keep track of the version control system and initiate and monitor a build system if there are any changes. It keeps an eye on the entire process and provides reports and notifications to alert.
+
+Some typical reasons as to why Jenkins is so widely used are:
+
+A.Developers and testers use Jenkins to detect defects in the software development lifecycle and automate the testing of builds. 
+B.They use it to continuously monitor the code in real-time and integrate changes into the build.
+C.Jenkins as it turns out, is a great fit for building a CI/CD pipeline because of its plugin-capabilities, and simple-to-use nature.
+
+
