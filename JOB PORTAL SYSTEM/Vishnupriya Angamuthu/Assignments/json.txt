@@ -1,0 +1,105 @@
+1)import json
+
+# Load the JSON data from the file
+with open('interface-data.json', 'r') as f:
+    data = json.load(f)
+
+
+import json
+
+# Load JSON data from file
+with open('interface-data.json', 'r') as f:
+    data = json.load(f)
+
+# Access the values of the dictionary
+print(data['interface'])
+print(data['description'])
+
+
+2)(# Extract the relevant information from the data
+interfaces = data['interface']
+import json
+
+
+# Load JSON data from file
+with open('interface-data.json', 'r') as f:
+    data = json.load(f)
+
+# Extract relevant information
+interfaces = data['interface']
+
+# Print the extracted information
+print(interfaces)
+
+3)# Define the header for the table
+header = 'DN Description Speed MTU \n'
+header += '-------------------------------------------------- -------------------- ------ ------\n'
+
+# Define table header
+header = 'DN Description Speed MTU \n'
+header += '-------------------------------------------------- -------------------- ------ ------\n'
+
+# Print the header
+print(header)
+
+
+4)# Build the table rows from the data
+table_rows = []
+for interface in interfaces:
+    dn = interface['dn']
+    desc = interface['desc']
+    speed = interface['speed']
+    mtu = interface['mtu']
+    table_rows.append(f'{dn:<70} {desc:<20} {speed:<7} {mtu:<7}\n')
+
+
+python 
+# Build table rows from data
+table_rows = []
+for interface in interfaces:
+    dn = interface['dn']
+    desc = interface['desc']
+    speed = interface['speed']
+    mtu = interface['mtu']
+    table_rows.append(f'{dn:<70} {desc:<20} {speed:<7} {mtu:<7}\n')
+    
+# Print table rows
+print(''.join(table_rows))
+
+css
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[2c:1f:23:39:59:85]/ip-[192.168.0.2]  Linux                                          1G     1500   
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[d4:85:64:21:f0:8a]/ip-[192.168.0.3]  Windows                                        10G    1500   
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[d4:85:64:21:f0:8b]/ip-[192.168.0.4]  Ubuntu                                         10G    9000   
+
+
+
+# Combine the header and rows to form the full table
+table = header + ''.join(table_rows)
+
+python
+# Combine header and rows to form the full table
+table = header + ''.join(table_rows)
+
+# Print the full table
+print(table)
+
+css
+DN Description Speed MTU 
+-------------------------------------------------- -------------------- ------ ------
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[2c:1f:23:39:59:85]/ip-[192.168.0.2]  Linux                                          1G     1500   
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[d4:85:64:21:f0:8a]/ip-[192.168.0.3]  Windows                                        10G    1500   
+uni/tn-infra/ap-ctrlr-infra/epg-all-units/cep-[d4:85:64:21:f0:8b]/ip-[192.168.0.4]  Ubuntu                                         10G    9000   
+
+
+# Print the table
+print('Interface Status\n' + '=' * 70)
+print(table)
+
+python
+print('Interface Status\n' + '=' * 70)
+print(table)
+
+css
+print('Interface Status\n' + '=' * 70)
+print(table)
+
