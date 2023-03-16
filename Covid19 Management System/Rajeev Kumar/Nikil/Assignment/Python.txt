@@ -1,0 +1,100 @@
+1)from collections import Counter
+
+# Open the file for reading
+with open('filename.txt', 'r') as file:
+    # Read the entire file content
+    content = file.read()
+   
+    # Convert the content to lowercase and split into words
+    words = content.lower().split()
+
+    # Count the frequency of each word using Counter
+    word_counts = Counter(words)
+
+    # Print the results
+    for word, count in word_counts.items():
+        print(word, count)
+
+
+
+2)class Book:
+    def __init__(self, title, author, published_year):
+        self.title = title
+        self.author = author
+        self.published_year = published_year
+
+    def __repr__(self):
+        return f"Book(title='{self.title}', author='{self.author}', published_year={self.published_year})"
+
+# Example list of books
+books = [
+    Book("The Great Gatsby", "F. Scott Fitzgerald", 1925),
+    Book("To Kill a Mockingbird", "Harper Lee", 1960),
+    Book("1984", "George Orwell", 1949),
+    Book("Pride and Prejudice", "Jane Austen", 1813),
+    Book("The Catcher in the Rye", "J.D. Salinger", 1951)
+]
+
+# Sort the list of books by published year in ascending order
+sorted_books = sorted(books, key=lambda book: book.published_year)
+
+# Print the sorted list of books
+for book in sorted_books:
+    print(book)
+
+
+
+3)def count_words(filename):
+    # Open the file for reading
+    with open(filename, 'r') as file:
+        # Read the entire file content
+        content = file.read()
+       
+        # Split the content into words
+        words = content.split()
+
+        # Count the number of words
+        num_words = len(words)
+
+        # Print the results
+        print(f'Total number of words in file "{filename}": {num_words}')
+
+
+count_words('filename.txt')
+
+
+
+
+4)import json
+
+# Sample JSON data
+sampleJson = {"id": 1, "name": "value2", "age": 29}
+
+# Sort the keys alphabetically
+sorted_json = json.dumps(sampleJson, sort_keys=True)
+
+# Write the sorted JSON to a file
+with open('sortedJson.json', 'w') as file:
+    file.write(sorted_json)
+
+
+
+
+
+5)import json
+
+class Vehicle:
+    def __init__(self, name, engine, price):
+        self.name = name
+        self.engine = engine
+        self.price = price
+
+vehicle = Vehicle("Toyota Rav4", "2.5L", 32000)
+
+# Convert the Vehicle object to a dictionary
+vehicle_dict = {"name": vehicle.name, "engine": vehicle.engine, "price": vehicle.price}
+
+# Convert the dictionary to JSON format
+json_str = json.dumps(vehicle_dict)
+
+print(json_str)
