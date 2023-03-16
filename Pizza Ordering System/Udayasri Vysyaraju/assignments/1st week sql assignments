@@ -1,0 +1,655 @@
+json assignments
+
+Exercise 1
+
+import json
+
+with open('interface-data.json') as json_file:
+    data = json.load(json_file)
+print("Interface Status")
+print("DN\tDescription\tSpeed\tMTU")
+for interface in data:
+    print("{}\t{}\t{}\t{}".format(
+        interface['dn'],
+        interface['descr'],
+        interface['speed'],
+        interface['mtu']
+    ))
+
+Exercise 2
+
+import json
+import statistics
+
+
+with open('rows.json') as f:
+    data = json.load(f)
+airport_data = {}
+
+for record in data['data']:
+    airline = record[9]
+    passengers = int(record[10])
+    if airline in airport_data:
+        airport_data[airline].append(passengers)
+    else:
+        airport_data[airline] = [passengers]
+
+for airline in airport_data:
+    average = round(statistics.mean(airport_data[airline]), 2)
+    maximum = max(airport_data[airline])
+    
+    print(airline + ': Average = ' + str(average) + ', Max = ' + str(maximum))
+
+
+Orders - accidental double-entry details, derived table
+
+SELECT OrderDetails.OrderID, OrderDetails.ProductID, OrderDetails.Quantity, Orders.OrderDate 
+       FROM (SELECT DISTINCT OrderID 
+             FROM OrderDetails 
+             WHERE Quantity >= 60) AS DerivedTable 
+       INNER JOIN OrderDetails 
+       ON DerivedTable.OrderID = OrderDetails.OrderID 
+       INNER JOIN Orders 
+       ON OrderDetails.OrderID = Orders.OrderID 
+       ORDER BY OrderDetails.OrderID;
+
+Late orders vs. total orders - fix null
+
+SELECT EmployeeID, COUNT(*) AS NumLateOrders, 
+       COALESCE(COUNT(*) / (SELECT COUNT(*) FROM Orders WHERE EmployeeID = o.EmployeeID) * 100, 0) AS PctLateOrders
+FROM Orders o 
+WHERE OrderDate > DueDate OR DueDate IS NULL 
+GROUP BY EmployeeID 
+ORDER BY PctLateOrders DESC;
+
+Late orders vs. total orders - percentage
+
+SELECT EmployeeID, COUNT(*) AS NumLateOrders, 
+       COALESCE(COUNT(*) / (SELECT COUNT(*) FROM Orders WHERE EmployeeID = o.EmployeeID) * 100, 0) AS PctLateOrders
+FROM Orders o 
+WHERE OrderDate > DueDate OR DueDate IS NULL 
+GROUP BY EmployeeID 
+ORDER BY PctLateOrders DESC;
+
+Late orders vs. total orders - fix decimal
+
+
+SELECT EmployeeID, COUNT(*) AS NumLateOrders, 
+       ROUND(COALESCE(COUNT(*) / (SELECT COUNT(*) FROM Orders WHERE EmployeeID = o.EmployeeID) * 100, 0), 2) AS PctLateOrders
+FROM Orders o 
+WHERE OrderDate > DueDate OR DueDate IS NULL 
+GROUP BY EmployeeID 
+ORDER BY PctLateOrders DESC;
+
+Customer grouping - fix null
+
+SELECT CustomerID, 
+    CASE 
+        WHEN SUM(Quantity * UnitPrice) BETWEEN 0 AND 1000 THEN '0 to 1,000'
+        WHEN SUM(Quantity * UnitPrice) BETWEEN 1000 AND 5000 THEN '1,000 to 5,000'
+        WHEN SUM(Quantity * UnitPrice) BETWEEN 5000 AND 10000 THEN '5,000 to 10,000'
+        WHEN SUM(Quantity * UnitPrice) > 10000 THEN 'Over 10,000'
+    END AS CustomerGroup
+FROM Orders
+JOIN OrderDetails USING (OrderID)
+WHERE YEAR(OrderDate) = 2016
+GROUP BY CustomerID
+HAVING SUM(Quantity * UnitPrice) > 0
+ORDER BY CustomerID;
+
+Customer grouping with percentage
+
+SELECT CustomerGroup, ROUND(COUNT(CustomerGroup) * 100.0 / (SELECT COUNT(*) FROM Orders WHERE YEAR(OrderDate) = 2016), 2) AS Percentage
+FROM (
+    SELECT CustomerID, 
+        CASE 
+            WHEN SUM(Quantity * UnitPrice) BETWEEN 0 AND 1000 THEN '0 to 1,000'
+            WHEN SUM(Quantity * UnitPrice) BETWEEN 1000 AND 5000 THEN '1,000 to 5,000'
+            WHEN SUM(Quantity * UnitPrice) BETWEEN 5000 AND 10000 THEN '5,000 to 10,000'
+            WHEN SUM(Quantity * UnitPrice) > 10000 THEN 'Over 10,000'
+        END AS CustomerGroup
+    FROM Orders
+    JOIN OrderDetails USING (OrderID)
+    WHERE YEAR(OrderDate) = 2016
+    GROUP BY CustomerID
+    HAVING SUM(Quantity * UnitPrice) > 0
+) AS Customer_Grouping
+GROUP BY CustomerGroup
+ORDER BY COUNT(CustomerGroup) DESC;
+
+
+Customer grouping-flexible
+
+
+SELECT CustomerID, 
+    CASE 
+        WHEN SUM(Quantity * UnitPrice) <= (SELECT LowValue FROM CustomerGroupThreshold) THEN 'Low'
+        WHEN SUM(Quantity * UnitPrice) > (SELECT LowValue FROM CustomerGroupThreshold) 
+            AND SUM(Quantity * UnitPrice) <= (SELECT MediumValue FROM CustomerGroupThreshold) THEN 'Medium'
+        WHEN SUM(Quantity * UnitPrice) > (SELECT MediumValue FROM CustomerGroupThreshold) 
+            AND SUM(Quantity * UnitPrice) <= (SELECT HighValue FROM CustomerGroupThreshold) THEN 'High'
+        WHEN SUM(Quantity * UnitPrice) > (SELECT HighValue FROM CustomerGroupThreshold) THEN 'Very High'
+    END AS CustomerGroup
+FROM Orders
+JOIN OrderDetails USING (OrderID)
+WHERE YEAR(OrderDate) = 2016
+GROUP BY CustomerID
+HAVING SUM(Quantity * UnitPrice) > 0
+ORDER BY CustomerID;
+
+CS-1
+
+
+SELECT COUNT(*) - COUNT(DISTINCT CITY)
+FROM STATION;
+
+CS-2
+
+CREATE TABLE Teams ( 
+    team_id INTEGER, 
+    team_name VARCHAR(255), 
+    team_city VARCHAR(255), 
+    coach VARCHAR(255), 
+    captain_id INTEGER,
+    PRIMARY KEY (team_id)
+);
+
+CREATE TABLE Players ( 
+    player_id INTEGER, 
+    team_id INTEGER, 
+    player_name VARCHAR(255), 
+    position VARCHAR(255), 
+    skill_level INTEGER,
+    PRIMARY KEY (player_id),
+    FOREIGN KEY (team_id) REFERENCES Teams(team_id)
+);
+
+CREATE TABLE Injury_Records ( 
+    player_id INTEGER, 
+    injury VARCHAR(255), 
+    severity INTEGER, 
+    FOREIGN KEY (player_id) REFERENCES Players(player_id)
+);
+
+CREATE TABLE Games ( 
+    game_id INTEGER, 
+    host_team_id INTEGER, 
+    guest_team_id INTEGER, 
+    date DATE, 
+    score VARCHAR(255),
+    PRIMARY KEY (game_id),
+    FOREIGN KEY (host_team_id) REFERENCES Teams(team_id),
+    FOREIGN KEY (guest_team_id) REFERENCES Teams(team_id)
+);
+
+INSERT INTO Teams (team_id, team_name, team_city, coach, captain_id)
+VALUES (1, 'Toronto Maple Leafs', 'Toronto', 'John Smith', 7);
+
+
+INSERT INTO Players (player_id, team_id, player_name, position, skill_level)
+VALUES (7, 1, 'John Doe', 'Right Wing', 9);
+
+
+INSERT INTO Injury_Records (player_id, injury, severity)
+VALUES (7, 'Sprained Ankle', 3);
+
+
+INSERT INTO Games (game_id, host_team_id, guest_team_id, date, score)
+VALUES (1, 1, 2, 'May 11th, 1999', '4 to 2');
+
+ CS-3
+
+create table courses (
+  course_id int primary key,
+  title varchar(50),
+  credits int,
+  syllabus varchar(1000),
+  prerequisites varchar(50)
+);
+
+create table course_offerings (
+  course_offering_id int primary key,
+  course_id int,
+  year int,
+  semester int,
+  section_number int,
+  instructor_id int,
+  timings varchar(50),
+  classroom varchar(50),
+  foreign key (course_id) references courses (course_id),
+  foreign key (instructor_id) references instructors (instructor_id)
+);
+
+create table students (
+  student_id int primary key,
+  name varchar(50),
+  program varchar(50)
+);
+
+create table instructors (
+  instructor_id int primary key,
+  name varchar(50),
+  department varchar(50),
+  title varchar(50)
+);
+
+create table course_enrollment (
+  course_offering_id int,
+  student_id int,
+  grade varchar(50),
+  foreign key (course_offering_id) references course_offerings (course_offering_id),
+  foreign key (student_id) references students (student_id)
+);
+
+
+SELECT course.title, offering.year, offering.semester, offering.section_number, offering.instructor_id 
+FROM courses AS course 
+INNER JOIN course_offerings AS offering 
+ON course.course_id = offering.course_id;
+
+
+SELECT student.name, offering.course_id, enrollment.grade 
+FROM students AS student 
+INNER JOIN course_enrollment AS enrollment 
+ON student.student_id = enrollment.student_id 
+INNER JOIN course_offerings AS offering 
+ON enrollment.course_offering_id = offering.course_offering_id;
+
+
+SELECT instructor.name, offering.course_id, offering.section_number 
+FROM instructors AS instructor 
+INNER JOIN course_offerings AS offering 
+ON instructor.instructor_id = offering.instructor_id;
+
+CS-4
+
+CREATE TABLE team_stats
+(
+  match_id INT NOT NULL AUTO_INCREMENT,
+  team VARCHAR(100) NOT NULL,
+  opponent VARCHAR(100) NOT NULL,
+  match_date DATE NOT NULL,
+  score INT NOT NULL,
+  PRIMARY KEY (match_id)
+);
+
+CREATE TABLE players
+(
+  player_id INT NOT NULL AUTO_INCREMENT,
+  player_name VARCHAR(100) NOT NULL,
+  PRIMARY KEY (player_id)
+);
+
+CREATE TABLE match_players
+(
+  match_id INT NOT NULL,
+  player_id INT NOT NULL,
+  PRIMARY KEY (match_id, player_id),
+  FOREIGN KEY (match_id) REFERENCES team_stats (match_id),
+  FOREIGN KEY (player_id) REFERENCES players (player_id)
+);
+
+CREATE TABLE player_stats
+(
+  match_id INT NOT NULL,
+  player_id INT NOT NULL,
+  goals INT NOT NULL,
+  assists INT NOT NULL,
+  PRIMARY KEY (match_id, player_id),
+  FOREIGN KEY (match_id) REFERENCES team_stats (match_id),
+  FOREIGN KEY (player_id) REFERENCES players (player_id)
+);
+
+INSERT INTO team_stats (team, opponent, match_date, score)
+VALUES ('India', 'Australia', '2020-01-02', 5);
+
+INSERT INTO players (player_name)
+VALUES ('Virat Kohli'), ('Rohit Sharma'), ('MS Dhoni');
+
+INSERT INTO match_players (match_id, player_id)
+VALUES (1, 1), (1, 2), (1, 3);
+
+INSERT INTO player_stats (match_id, player_id, goals, assists)
+VALUES (1, 1, 2, 0), (1, 2, 3, 2), (1, 3, 0, 0);
+
+SELECT t.team, t.opponent, t.match_date, t.score, p.player_name, s.goals, s.assists
+FROM team_stats t
+INNER JOIN match_players m ON t.match_id = m.match_id
+INNER JOIN players p ON m.player_id = p.player_id
+INNER JOIN player_stats s ON t.match_id = s.match_id
+WHERE t.team = 'India';
+
+CS-5
+
+create table EXAM
+(
+  Course_Name VARCHAR(20),
+  Section_Number INTEGER,
+  Room_Number INTEGER,
+  Time TIME,
+  PRIMARY KEY(Course_Name, Section_Number)
+);
+
+create table COURSE
+(
+  Name VARCHAR(20),
+  Department VARCHAR(20),
+  C_Number INTEGER,
+  PRIMARY KEY(Name, Department, C_Number)
+);
+
+create table SECTION
+(
+  S_Number INTEGER,
+  Enrollment INTEGER,
+  Course_Name VARCHAR(20),
+  Department VARCHAR(20),
+  C_Number INTEGER,
+  PRIMARY KEY (S_Number),
+  FOREIGN KEY (Course_Name, Department, C_Number) REFERENCES COURSE(Name, Department, C_Number)
+);
+
+create table ROOM
+(
+  R_Number INTEGER,
+  Capacity INTEGER,
+  Building VARCHAR(20),
+  PRIMARY KEY(R_Number)
+);
+
+create table DEPENDENT
+(
+  Course_Name VARCHAR(20),
+  Department VARCHAR(20),
+  C_Number INTEGER,
+  S_Number INTEGER,
+  PRIMARY KEY (Course_Name, Department, C_Number, S_Number),
+  FOREIGN KEY (Course_Name, Department, C_Number) REFERENCES COURSE(Name, Department, C_Number),
+  FOREIGN KEY (S_Number) REFERENCES SECTION(S_Number)
+);
+
+ALTER TABLE EXAM
+ADD FOREIGN KEY (Room_Number) REFERENCES ROOM (R_Number);
+
+ALTER TABLE EXAM
+ADD FOREIGN KEY (Course_Name, Department, C_Number) REFERENCES DEPENDENT (Course_Name, Department, C_Number);
+
+
+
+								SQL assignments
+1)High value customers
+
+SELECT customer_id
+FROM orders
+WHERE YEAR(order_date) = 2016
+AND total_value > 10000;
+
+2)Month end orders
+
+SELECT EmployeeID, OrderID
+FROM Orders
+WHERE DAY(OrderDate) = LAST_DAY(OrderDate)
+ORDER BY EmployeeID, OrderID;
+
+3)High value customers total order
+
+SELECT customer_id 
+FROM Orders 
+WHERE YEAR(order_date) = 2016 
+GROUP BY customer_id 
+HAVING SUM(order_total) >= 15000;
+
+4)Orders with many line items
+
+SELECT OrderID, COUNT(OrderID) AS TotalLineItems 
+FROM [Order Details]
+GROUP BY OrderID
+ORDER BY TotalLineItems DESC 
+LIMIT 10;
+
+5)Customer grouping
+
+SELECT CustomerID,
+       SUM(OrderPrice) AS TotalOrders
+FROM Orders 
+WHERE YEAR(OrderDate) = 2016 
+GROUP BY CustomerID
+HAVING SUM(OrderPrice) > 0
+ORDER BY CustomerID ASC;
+
+6)High-value customers with discount
+
+SELECT CustomerID, CompanyName, 
+SUM(UnitPrice * Quantity) AS TotalsWithoutDiscount, 
+SUM(UnitPrice * Quantity * (1 - Discount)) AS TotalsWithDiscount
+FROM Customers
+JOIN Orders
+ON Customers.CustomerID = Orders.CustomerID
+JOIN [Order Details]
+ON Orders.OrderID = [Order Details].OrderID
+GROUP BY CustomerID, CompanyName
+ORDER BY TotalsWithDiscount DESC;
+
+7)Orders random assortment
+
+SELECT TOP 2 PERCENT* 
+FROM OrderID 
+ORDER BY NEWID()
+
+8)Orders accidental double-entry
+
+SELECT OrderID
+FROM OrderDetails
+WHERE Quantity >= 60
+GROUP BY OrderID
+ORDER BY OrderID ASC;
+
+9)Orders accidental double-entry details
+
+SELECT OrderID, ProductID, Quantity 
+FROM Orders 
+WHERE Quantity >= 60 
+AND ProductID IN (SELECT ProductID FROM Orders GROUP BY ProductID HAVING COUNT(*) > 1);
+
+10)Late orders
+
+SELECT OrderID, OrderDate, RequiredDate, ShippedDate
+FROM Orders
+WHERE ShippedDate > RequiredDate;
+
+11)Late orders which employees
+
+SELECT EmployeeID, LastName, COUNT(*) AS TotalLateOrders 
+FROM Salespeople 
+JOIN Orders ON Orders.SalespersonID = Salespeople.EmployeeID
+WHERE Orders.Status = 'Late'
+GROUP BY EmployeeID, LastName
+ORDER BY TotalLateOrders DESC
+
+12)Late orders vs. total orders
+
+SELECT EmployeeID, LastName, COUNT(*) AS AllOrders, 
+SUM(CASE WHEN OrderDate > DueDate THEN 1 ELSE 0 END) AS LateOrders
+FROM SalesPerson
+GROUP BY EmployeeID, LastName;
+
+13)Late orders vs. total orders - missing employee
+
+
+SELECT EmployeeID, LastName, COUNT(OrderID) AS AllOrders, 
+SUM(CASE WHEN OrderDate > RequiredDate THEN 1 ELSE 0 END) AS LateOrders
+FROM Employees
+LEFT JOIN Orders
+ON Employees.EmployeeID = Orders.EmployeeID
+GROUP BY EmployeeID, LastName;
+
+14)Orders - accidental double-entry details, derived table
+
+Select
+OrderDetails.OrderID
+,ProductID
+,UnitPrice
+,Quantity
+,Discount
+From OrderDetails
+Join (
+Select
+OrderID
+From OrderDetails
+Where Quantity >= 60
+Group By OrderID, Quantity
+Having Count(*) > 1
+) PotentialProblemOrders
+on PotentialProblemOrders.OrderID = OrderDetails.OrderID
+Group By OrderDetails.OrderID, ProductID 
+Order by OrderID, ProductID
+
+15)Late orders vs. total orders - fix null
+
+UPDATE Orders
+SET LateOrders = COALESCE(LateOrders, 0)
+WHERE EmployeeID = 5;
+
+16)Late orders vs. total orders - percentage
+
+
+Solution
+SELECT EmployeeID, LastName, AllOrders, LateOrders, CAST(LateOrders AS FLOAT)/CAST(AllOrders AS FLOAT) AS PercentLateOrders
+FROM orders 
+ORDER BY EmployeeID;
+
+17)Late orders vs. total orders - fix decimal
+
+ PercentLateOrders
+
+SELECT EmployeeID, LastName, AllOrders, LateOrders, CONVERT(DECIMAL(10,2), PercentageLateOrders) AS PercentLateOrders
+FROM Employees
+WHERE AllOrders > 0;
+
+18)Customer grouping - fix null
+
+SELECT CustomerID, CompanyName, TotalOrderAmount, 
+    CASE 
+        WHEN TotalOrderAmount >= 0 and TotalOrderAmount < 1000 THEN 'Low' 
+        WHEN TotalOrderAmount >= 1000 and TotalOrderAmount < 5000 THEN 'Medium' 
+        WHEN TotalOrderAmount >= 5000 and TotalOrderAmount < 10000 THEN 'High' 
+        WHEN TotalOrderAmount >= 10000 THEN 'Very High'
+    END AS CustomerGroup
+FROM Customers;
+
+19)Customer grouping with percentage
+
+SELECT CustomerGroup, 
+       COUNT(CustomerID) AS TotalInGroup, 
+       CAST(COUNT(CustomerID) * 100.0 / (SELECT COUNT(*) FROM Customers) AS DECIMAL(10, 10)) AS PercentageInGroup
+FROM Customers
+GROUP BY CustomerGroup
+ORDER BY TotalInGroup DESC;
+
+20)Customer grouping - flexible
+
+Select
+Customers.CustomerID
+,Customers.CompanyName
+,TotalOrderAmount = SUM(Quantity * UnitPrice)
+,CustomerGroupName = CustomerGroupThreshold.CustomerGroupName
+From Customers
+join Orders
+on Orders.CustomerID = Customers.CustomerID
+join OrderDetails
+on Orders.OrderID = OrderDetails.OrderID
+join CustomerGroupThreshold
+on TotalOrderAmount between CustomerGroupThreshold.LowThreshold and
+CustomerGroupThreshold.HighThreshold
+Where
+OrderDate >= '20160101'
+and OrderDate < '20170101'
+Group By
+Customers.CustomerID
+,Customers.CompanyName
+,CustomerGroupThreshold.CustomerGroupName
+
+
+
+
+
+
+
+
+
+
+
+
+								Lambda assignments
+1)
+# lambda function that adds 15 to a given number
+addition = lambda x: x + 15
+
+# lambda function that multiplies argument x with argument y
+multiplication = lambda x, y: x * y
+
+# calling the lambda functions
+print("Addition of 15 to given number:", addition(5))
+print("Multiplication of given numbers:", multiplication(2, 5))
+
+2)
+sorted_marks = sorted(list(map(lambda x: [x[0], float(x[1])],
+                         [['S ROY', 1], ['B BOSE', 3], ['N KAR', 2], ['C DUTTA', 1], ['G GHOSH', 1]])),
+                    key = lambda x: x[1])
+
+second_lowest = sorted_marks[1][1]
+
+names = []
+
+for name, grade in sorted_marks:
+    if grade == second_lowest:
+        names.append(name)
+
+print("Second lowest grade: {0}".format(second_lowest))
+print("Names:")
+print(*names, sep=", ")
+
+3)
+
+# list of strings 
+strings = ['Python', 'PHP', 'Java', 'C#', 'C++']
+
+# size of strings to be extracted
+size = 3
+
+# using lambda to extract strings of specified size 
+result = list(filter(lambda x: len(x) == size, strings))
+
+print(result)
+
+list1 = ['Python', 'list', 'exercises', 'practice', 'solution']
+length = 8
+
+result = list(filter(lambda x: len(x) == length, list1))
+
+print(result)
+
+4)
+avg_tuple = lambda tup: tuple(map(lambda x: round(sum(x) / len(x), 2), tup)) 
+print("Average value of the numbers of the said tuple of tuples:", avg_tuple(((10, 10, 10), (30, 45, 56), (81, 80, 39), (1, 2, 3))))
+print("Average value of the numbers of the said tuple of tuples:", avg_tuple(((1, 1, -5), (30, -15, 56), (81, -60, -39), (-10, 2, 3))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
