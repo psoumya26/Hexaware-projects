@@ -1,0 +1,27 @@
+
+
+1)
+In terms of code quality, version three is the best of the three as it uses a more efficient loop structure and has better formatting for the print statement. Additionally, it avoids unnecessary variables and functions.
+
+2)
+
+Version four:
+numbers = []
+    def add_number(num): 
+    numbers.append(num)
+ while True:
+ answer = input(&#27;Enter a number: &#27;)
+ if answer != &#27;quit&#27;:
+    add_number(answer)
+ else:
+    break
+ print(&#27;Numbers: %s&#27; % numbers)
+
+3)The better code is version two because it is simpler and uses modern features such as f-strings and operator. It is also more concise and easier to read than version one and three.
+
+4)
+Violations:
+1. Wildcard imports (from requests import *) are generally discouraged and should be avoided.
+2. The function get_error_message() is missing a return statement at the end, which can lead to unexpected behavior.
+3. The indentation of the else: clause in the get_error_message() function is incorrect.
+4. The main() function is missing an indentation level, which can lead to unexpected behavior.
